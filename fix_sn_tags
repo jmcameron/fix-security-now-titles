@@ -1,0 +1,79 @@
+#!/usr/bin/env python
+
+"""
+This program will fix the titles of any Security Now episodes so that the
+episode number is first in the title. This is useful for smal MP3 players to
+make it easier to track your progress when playing multiple episodes.
+
+USAGE:
+  fix_sn_tags sn0420.mp3    # fix this file
+  fix_sn_tags *.mp3         # fix all .mp3 files in this directory
+  fix_sn_tags               # fix all .mp3 files in this directory
+
+NOTES:
+  - If a file does not seem to be a Security Now episode, it will not be changed
+  - You will need to install the 'tagpy' python library
+  - Although created and tested on a Ubuntu system, it uses very generic code
+    and should work on any system that supports 'tagpy'
+
+Jonathan M. Cameron
+September 10, 2013
+jmcameron@gmail.com
+
+"""
+
+import sys
+import re
+import tagpy
+
+def getEpisodeNum(filename):
+    """Get the episode number if it is a security now episode (else return None)"""
+    epnum = None
+    for rfn in (re.compile(r'^sn([0-9]+)\.mp3$'),
+                re.compile(r'^SN-([0-9]+)\.mp3$')):
+        m = rfn.match(filename)
+        if m:
+            break
+    if m:
+        epnum = int(m.group(1))
+    return epnum
+
+def fixTitle(t, epnum):
+    """Fix the title so the episode number is first in the title"""
+    for rt in (re.compile(r'(Security Now!) #[0]*' + str(epnum)),
+               re.compile(r'^Security Now [0]*' + str(epnum) + ': (.+)$'),
+               re.compile(r'^' + "%03d " % epnum + r'(.*)$')
+               ):
+        m = rt.match(t.title)
+        if m:
+            break
+    if m:
+        return "%03d " % epnum + m.group(1)
+    else:
+        return "%03d " % epnum + t.title
+
+if len(sys.argv) <= 1:
+    import glob
+    files = glob.glob("*.mp3")
+else:
+    files = sys.argv[1:]
+
+for filename in files:
+
+    f = tagpy.FileRef(filename)
+    t = f.tag()
+
+    # Match the pattern of the filename to get the episode number
+    epnum = getEpisodeNum(filename)
+    if not epnum:
+        print "Unable to extract episode number from filename '%s': Skipping..." % filename
+        continue
+
+    # Update the version number
+    new_title = fixTitle(t, epnum)
+    if new_title == t.title:
+        print "Episode '%s' title already fixed:  Skipping..." % filename
+        continue
+    else:
+        t.title = new_title
+        f.save()
