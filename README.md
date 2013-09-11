@@ -1,4 +1,4 @@
-# fix_sn_title - Fix Security Now Titles #
+# Fix Security Now Titles #
 
 **Fix Security Now MP3 episode titles to include the episode number at the start of the title**
 
@@ -7,9 +7,9 @@ episode number is first in the title. This is useful for smal MP3 players to
 make it easier to track your progress when playing multiple episodes.
 
 ### USAGE: ###
- - fix_sn_tags sn0420.mp3    # fix this file
- - fix_sn_tags *.mp3         # fix all .mp3 files in this directory
- - fix_sn_tags               # fix all .mp3 files in this directory
+ - fix_sn_titles sn0420.mp3    # fix this file
+ - fix_sn_titles *.mp3         # fix all .mp3 files in this directory
+ - fix_sn_titles               # fix all .mp3 files in this directory
 
 ### NOTES: ###
   - If a file does not seem to be a Security Now episode, it will not be changed
